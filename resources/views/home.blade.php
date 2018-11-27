@@ -9,7 +9,7 @@
 	$(document).ready(function(){
 		console.log('foi');
 		$.ajax({
-			url: 'http://localhost:8000/movies/upcoming?page=2',
+			url: 'http://localhost:8000/movies/upcoming?page=0',
 			type: 'GET'
 		}).done(function(data){
 			console.log(data);

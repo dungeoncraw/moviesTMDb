@@ -22,6 +22,9 @@ class MovieController extends Controller
     public function index(Request $request)
     {
         $page = $request->input('page');
+        if($page <= 0){
+            return response()->json(['status' => 'nok', 'message' => 'Paginação deve ser um número inteiro e maior que zero.']);
+        }
         $urlMovies = $this->tmdbBaseUrl.'/movie/upcoming?api_key='.$this->tmdbApiKey.'&language=pt-BR&page='.$page;
         $response = $this->httpClient->get($urlMovies);
         $movies = json_decode($response->getBody()->getContents());
