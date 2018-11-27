@@ -11,6 +11,9 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+$router->get('/', function () {
+    $url = route('upcoming_list');
+    return view('home', ['url' => $url]);
 });
+
+$router->get('/movies/upcoming', ['as' => 'upcoming_list', 'uses' => 'MovieController@index']);
