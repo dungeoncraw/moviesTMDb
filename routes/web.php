@@ -19,4 +19,5 @@ $router->get('/', function () {
 
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->get('/movies/upcoming', ['as' => 'upcoming_list', 'uses' => 'MovieController@index']);
+	$router->get('/movies/detail', ['as' => 'detail_movie', 'uses' => 'MovieController@show']);
 });

@@ -21,22 +21,71 @@ class MovieController extends Controller
 
     public function index(Request $request)
     {
-        $page = $request->input('page');
-        
+        $page = $this->getPagination($request);
         if($page <= 0){
             return response()->json(['status' => 'nok', 'message' => 'Paginação deve ser um número inteiro e maior que zero.']);
         }
-
         $urlMovies = $this->tmdbBaseUrl.'/movie/upcoming?api_key='.$this->tmdbApiKey.'&language=pt-BR&page='.$page;
         $response = $this->httpClient->get($urlMovies);
         $movies = json_decode($response->getBody()->getContents());
-        
+
+        if (count($movies->results)){
+            $movies->results = $this->getGenre($movies->results);
+        }
+
         return response()->json(['status' => 'ok', 'movies' => $movies]);
     }
 
     public function show(Request $request)
     {
+        $movieId = $request->input('movie-id');
+        if(!$movieId)
+        {
+            return response()->json(['status' => 'nok', 'message' => 'Identificador de filme inválido.']);
+        }
 
+        $movieDetailUrl = $this->tmdbBaseUrl.'/movie/'.$movieId.'?api_key='.$this->tmdbApiKey.'&language=pt-BR';
+        $response = $this->httpClient->get($movieDetailUrl);
+        $movieDetail = json_decode($response->getBody()->getContents());
+        $movieDetail = $this->getGenre([$movieDetail]);
+        
+        return response()->json(['status' => 'ok', 'movies' => $movieDetail]);
+    }
+
+    private function getGenre($movies)
+    {
+        $urlGenreMovies = $this->tmdbBaseUrl.'/genre/movie/list?api_key='.$this->tmdbApiKey.'&language=pt-BR';
+        $response = $this->httpClient->get($urlGenreMovies);
+        $genreList = json_decode($response->getBody()->getContents());
+        
+        foreach($movies as $movie) 
+        {
+            $movie->genre_names = [];
+            if(property_exists($movie, 'genre_ids')){
+                $genreKey = 'genre_ids';
+            } else {
+                $genreKey = 'genres';
+            }
+            foreach($movie->$genreKey as $genre)
+            {
+                if($genreKey == 'genre_ids'){
+                    $genreInfo = $genre;
+                } else {
+                    $genreInfo = $genre->id;
+                }
+                $genreName = array_search($genreInfo, array_column($genreList->genres, 'id'));
+                array_push($movie->genre_names, $genreList->genres[$genreName]->name);
+            }
+        }
+        return $movies;
+    }
+
+    private function getPagination($request)
+    {
+        //simple stratagy to get pagination from frontend
+        //could implement pagination storage in backend
+        $page = $request->input('page');
+        return $page;
     }
     
 }
