@@ -48,8 +48,33 @@ class MovieController extends Controller
         $response = $this->httpClient->get($movieDetailUrl);
         $movieDetail = json_decode($response->getBody()->getContents());
         $movieDetail = $this->getGenre([$movieDetail]);
-        
+        $this->registerMovieView($request, $movieDetail);
         return response()->json(['status' => 'ok', 'movies' => $movieDetail]);
+    }
+
+    public function searchFilm(Request $request)
+    {
+        $movieName = $request->input('movie-name');
+        if(strlen($movieName) < 3)
+        {
+            return response()->json(['status' => 'nok', 'message' => 'Informe ao menos 3 letras para pesquisar um filme.']);
+        }
+
+        $page = $this->getPagination($request);
+        if($page <= 0){
+            return response()->json(['status' => 'nok', 'message' => 'Paginação deve ser um número inteiro e maior que zero.']);
+        }
+
+        $urlMovies = $this->tmdbBaseUrl.'/search/movie?api_key='.$this->tmdbApiKey.'&language=pt-BR&query='.$movieName.'&page='.$page;
+        $response = $this->httpClient->get($urlMovies);
+        $movies = json_decode($response->getBody()->getContents());
+
+        if (count($movies->results)){
+            $movies->results = $this->getGenre($movies->results);
+        }
+
+        return response()->json(['status' => 'ok', 'movies' => $movies]);
+
     }
 
     private function getGenre($movies)
@@ -87,5 +112,18 @@ class MovieController extends Controller
         $page = $request->input('page');
         return $page;
     }
+
+    private function registerMovieView($request, $movieDetail)
+    {
+        //could store info about click and get metrics of visualization
+        //to mvp just skip function
+        
+    }
+
+    private function registerMovieSearch($request, $movieDetail)
+    {
+        //could store info about click and get metrics of visualization
+        
+    }    
     
 }
