@@ -100,7 +100,7 @@
 		});
 
 		function searchMovie(term){
-			if (pagination === totalPagination){
+			if (totalPagination == 1 || pagination === totalPagination){
 				return alert('Não há mais itens para pesquisar.');
 			}
 			$.ajax({
@@ -119,7 +119,7 @@
 		};
 
 		function getMovies(){
-			if (pagination === totalPagination){
+			if (totalPagination === 1 || pagination === totalPagination){
 				return alert('Não há mais itens para pesquisar.');
 			}
 			$.ajax({
