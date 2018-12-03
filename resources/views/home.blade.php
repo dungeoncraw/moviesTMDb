@@ -53,10 +53,9 @@
 	let pagination = 1;
 	let totalPagination = 0;
 	let totalResults = 0;
-
+	let hostname = window.location.protocol +'//'+ window.location.hostname + ':'+ window.location.port;
 	$(document).ready(function(){
 		getMovies();
-
 		$('#search-movie').on('click', function(){
 			let term = $('#movie-name').val();
 			if(term.length){
@@ -76,7 +75,7 @@
 		$(document).on('click', '.movie-detail', function(){
 			let movieId = $(this).closest('.card').data('movie-id');
 			$.ajax({
-				url: '/api/movies/detail?movie-id='+movieId,
+				url: hostname + '/api/movies/detail?movie-id='+movieId,
 				type: 'GET'
 			}).done(function(data){
 				let options = {
@@ -105,7 +104,7 @@
 				return alert('Não há mais itens para pesquisar.');
 			}
 			$.ajax({
-				url: '/api/movies/search?movie-name='+term+'&page='+pagination,
+				url: hostname + '/api/movies/search?movie-name='+term+'&page='+pagination,
 				type: 'GET'
 			}).done(function(data){
 				if(data.status === 'ok'){
@@ -124,7 +123,7 @@
 				return alert('Não há mais itens para pesquisar.');
 			}
 			$.ajax({
-				url: '/api/movies/upcoming?page='+pagination,
+				url: hostname + '/api/movies/upcoming?page='+pagination,
 				type: 'GET'
 			}).done(function(data){
 				if(data.status === 'ok'){
